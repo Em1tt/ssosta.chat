@@ -30,7 +30,12 @@
 				passwordConfirm: password,
 				randomName: generateName()
 			};
-			await pb.collection('users').create(data);
+			await pb.collection('users').create(data).catch(err => {
+				const error = err.response.data;
+				errMessage = 'Wrong password or username';
+				if (error.identity) return (errMessage = 'Invalid username');
+				if (error.password) return (errMessage = 'Invalid password');
+			});
 			await login();
 		} catch (err) {
 			console.error(err);
@@ -39,7 +44,7 @@
 </script>
 
 <nav
-	class="bg-slate-900 w-60 fixed top-0 left-0 h-screen border-r border-r-slate-300/20 p-5 flex flex-col flex-nowrap justify-between"
+	class="bg-slate-900 w-60 fixed top-0 left-0 h-screen border-r border-r-slate-300/20 p-5 flex flex-col flex-nowrap justify-between z-30"
 >
 	<h1 class="text-slate-500 text-xl text-center">PROJECT.CHAT</h1>
 	<div>
@@ -47,9 +52,9 @@
 			<button on:click={changeName} class="w-full p-2 bg-sky-400 hover:bg-sky-300 rounded-md mb-2"
 				>Randomize name</button
 			>
-			<div class="w-full p-2 flex flex-row flex-nowrap gap-2">
+			<div class="w-full p-2 flex flex-row flex-nowrap gap-2 overflow-hidden items-center">
 				<img
-					class="rounded overflow-hidden"
+                    class="rounded-full aspect-square w-8 h-8"
 					src={`https://api.dicebear.com/6.x/big-ears-neutral/svg?seed=${$currentUser?.randomName}`}
 					alt="avatar"
 					width="30px"
